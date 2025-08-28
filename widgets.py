@@ -27,6 +27,7 @@ class TodoTask(Widget):
                         id="Date",
                         classes="date-text"
                     )
+                # FIXME: this label is clipping out of boundaries
                 yield Label(
                     '''
                     Thats a long and multilined
