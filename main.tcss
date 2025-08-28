@@ -1,3 +1,24 @@
-Container {
-	align: center middle;
+Screen {
+	background: #22223b;
+}
+
+.task-container {
+	height: 4;
+	content-align: center middle;
+	background: #4a4e69;
+	padding: 1 1;
+	margin: 1 2;
+}
+
+.standart-text {
+	color: #f2e9e4;
+}
+
+.important-text {
+	color: #f2e9e4;
+	text-style: bold underline;
+}
+
+.date-text {
+	color: #c9ada7 30%;
 }
