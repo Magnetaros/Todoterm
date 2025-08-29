@@ -2,8 +2,8 @@ import sqlite3
 
 from textual import log
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer
-from textual.containers import Container
+from textual.widgets import Footer, ListView, ListItem
+from textual.containers import Vertical, VerticalGroup
 
 from widgets import TodoTask, TodoTitle
 
@@ -32,11 +32,16 @@ class Todo(App):
             self.conn.close()
 
     def compose(self) -> ComposeResult:
-        yield Header()
         yield Footer()
-        with Container():
-            yield TodoTitle(classes="debug-bounds")
-            yield TodoTask(classes="task-container")
+        with Vertical():
+            yield TodoTitle(classes="todo-title")
+            with ListView(classes="task-list"):
+                yield ListItem(TodoTask(), classes="task-container")
+                yield ListItem(TodoTask(), classes="task-container")
+                yield ListItem(TodoTask(), classes="task-container")
+                yield ListItem(TodoTask(), classes="task-container")
+                yield ListItem(TodoTask(), classes="task-container")
+                yield ListItem(TodoTask(), classes="task-container")
 
     def action_create_task(self) -> None:
         log("creating task")

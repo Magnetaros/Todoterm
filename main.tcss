@@ -5,8 +5,23 @@ Screen {
 .task-container {
 	height: auto;
 	content-align: center middle;
-	background: #4a4e69;
-	padding: 1 1;
+	background: #4a4e69 80%;
+	padding: 0 1;
+	margin: 1 1;
+}
+
+.task-container:focus {
+	background: 100%;
+}
+
+.task-list {
+	width: 100%;
+	padding: 0 1;
+	background: #22223b;
+	border: heavy green;
+}
+
+.todo-title {
 	margin: 1 2;
 }
 
