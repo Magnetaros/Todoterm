@@ -3,9 +3,9 @@ import sqlite3
 from textual import log
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer
-from textual.containers import VerticalScroll
+from textual.containers import Container
 
-from widgets import TodoTask
+from widgets import TodoTask, TodoTitle
 
 
 class Todo(App):
@@ -23,6 +23,9 @@ class Todo(App):
     def on_mount(self) -> None:
         self.init_db()
 
+    def on_focus(self) -> None:
+        self.app.BINDINGS = self.BINDINGS
+
     def on_unmount(self) -> None:
         log("Todo on_unmount!")
         if self.conn is not None:
@@ -31,8 +34,9 @@ class Todo(App):
     def compose(self) -> ComposeResult:
         yield Header()
         yield Footer()
-        with VerticalScroll():
-            yield TodoTask()
+        with Container():
+            yield TodoTitle(classes="debug-bounds")
+            yield TodoTask(classes="task-container")
 
     def action_create_task(self) -> None:
         log("creating task")

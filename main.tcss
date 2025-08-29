@@ -3,7 +3,7 @@ Screen {
 }
 
 .task-container {
-	height: 4;
+	height: auto;
 	content-align: center middle;
 	background: #4a4e69;
 	padding: 1 1;
@@ -21,4 +21,8 @@ Screen {
 
 .date-text {
 	color: #c9ada7 30%;
+}
+
+.debug-bounds {
+	border: heavy green;
 }
