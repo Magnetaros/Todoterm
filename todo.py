@@ -1,40 +1,45 @@
 import sqlite3
 
-from textual import log
 from textual.app import App, ComposeResult
 from textual.widgets import Footer, ListView, ListItem
-from textual.containers import Vertical, VerticalGroup
+from textual.containers import Vertical
 
-from widgets import TodoTask, TodoTitle
+from core import TodoDb
+from widgets import TodoTask, TodoTitle, TodoChange
 
 
 class Todo(App):
     CSS_PATH = "main.tcss"
 
     BINDINGS = [
-        ("l", "list_tasks", "view tasks"),
-        ("x", "close_app", "close app"),
         ("a", "create_task", "add task")
     ]
-    conn = None
+    db = None
 
     # TODO: first check for existing projects, if non create new
     # else show list of existing projects last 10 as centered list
     def on_mount(self) -> None:
-        self.init_db()
+        self.notify("Todo on_mount!")
+        self.db = TodoDb()
+
+        failed = self.db.init_db()
+        if failed is not None:
+            self.notify(failed, "Database error", severity="error")
 
     def on_focus(self) -> None:
         self.app.BINDINGS = self.BINDINGS
 
     def on_unmount(self) -> None:
-        log("Todo on_unmount!")
-        if self.conn is not None:
-            self.conn.close()
+        print("on unmount")
+        self.notify("Todo on_unmount!")
+        self.db.close_db()
 
     def compose(self) -> ComposeResult:
         yield Footer()
         with Vertical():
             yield TodoTitle(classes="todo-title")
+            # TODO: create another widget for this,
+            # I can't seem to find a way passing data through constructors
             with ListView(classes="task-list"):
                 yield ListItem(TodoTask(), classes="task-container")
                 yield ListItem(TodoTask(), classes="task-container")
@@ -44,36 +49,6 @@ class Todo(App):
                 yield ListItem(TodoTask(), classes="task-container")
 
     def action_create_task(self) -> None:
-        log("creating task")
+        self.notify("creating task", title="Action", timeout=0.7)
+        self.push_screen(TodoChange(classes="todo-popup"))
         pass
-
-    def action_list_tasks(self) -> None:
-        log("Loading list of tasks!")
-        pass
-
-    def action_close_app(self) -> None:
-        log("Closing app!")
-        self.exit()
-
-    def init_db(self):
-        try:
-            self.conn = sqlite3.connect("todos.db")
-            cursor = self.conn.cursor()
-            cursor.executescript('''
-                CREATE TABLE IF NOT EXISTS todos(
-                    id INTEGER PRIMARY KEY,
-                    project_id INTEGER,
-                    title VARCHAR(255) NOT NULL,
-                    description VARCHAR(2048) NULL,
-                    status INTEGER NOT NULL,
-                    created_at TEXT NOT NULL
-                );
-                CREATE TABLE IF NOT EXISTS projects(
-                    id INTEGER PRIMARY KEY,
-                    title VARCHAR(255) NOT NULL
-                );
-            ''')
-            cursor.fetchall()
-            cursor.close()
-        except sqlite3.OperationalError as e:
-            log(f"Failed to open database:{e}")

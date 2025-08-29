@@ -21,6 +21,11 @@ Screen {
 	border: heavy green;
 }
 
+.todo-popup {
+	width: 70%;
+	height: 30%;
+}
+
 .todo-title {
 	margin: 1 2;
 }

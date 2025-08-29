@@ -1,7 +1,8 @@
 import datetime
 
 from textual.app import ComposeResult
-from textual.widgets import Label, Rule, ListItem
+from textual.screen import ModalScreen
+from textual.widgets import Label, Input, Footer
 from textual.containers import HorizontalGroup, VerticalGroup
 
 
@@ -52,3 +53,15 @@ class TodoTitle(VerticalGroup):
             datetime.datetime.now().strftime('%A %d, %Y'),
             classes="standart-text"
         )
+
+
+class TodoChange(ModalScreen):
+    BINDINGS = [
+        ("escape", "app.pop_screen", "Exit window")
+    ]
+
+    def compose(self) -> ComposeResult:
+        yield Input(placeholder="Title", type="text")
+        yield Input(placeholder="Description", type="text")
+        yield Footer()
+    pass
