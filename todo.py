@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from textual.app import App, ComposeResult
 from textual.widgets import Footer, ListView, ListItem
 from textual.containers import VerticalGroup
@@ -29,7 +31,8 @@ class Todo(App):
     ]
 
     tasksDone = [
-        Todo(7, "Title One", None, "complite"),
+        Todo(7, "Title One", None, "complite",
+             created_at=datetime.now() - timedelta(days=4)),
         Todo(8, "Title Two", None, "complite"),
         Todo(9, "Title Three", "Some test text", "complite")
     ]

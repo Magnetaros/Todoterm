@@ -6,7 +6,7 @@ from textual import events
 from textual.app import ComposeResult
 from textual.reactive import reactive
 from textual.screen import ModalScreen
-from textual.widgets import Label, Input
+from textual.widgets import Label, Input, TextArea
 from textual.containers import HorizontalGroup, VerticalGroup
 
 
@@ -44,7 +44,7 @@ class TodoTask(HorizontalGroup):
         with VerticalGroup():
             with HorizontalGroup():
                 yield Label(
-                    f"Created {daysFromCreation} day(s) ago" if daysFromCreation.days != 0 else "Today",
+                    f"Created {daysFromCreation.days} day(s) ago" if daysFromCreation.days != 0 else "Today",
                     id="Date",
                     classes="date-text"
                 )
@@ -66,7 +66,7 @@ class TodoTitle(VerticalGroup):
         )
 
 
-# FIXME: show it as popup, current -> replaces full screen
+# FIXME: show it as popup with transparent background, current -> replaces full screen
 class TodoChange(ModalScreen):
 
     BINDINGS = [
@@ -74,17 +74,16 @@ class TodoChange(ModalScreen):
     ]
 
     def on_mount(self) -> None:
-        self.query_one('#dialog').border_title = "Task"
+        self.query_one('#dialog').border_title = "Todo"
 
     def on_key(self, event: events.Key) -> None:
         self.notify(f"key pressed {event.key}", timeout=0.3)
         self.notify(f"Current focus {self.selections}", timeout=0.3)
         if event.key == "enter" and self.query_one('#title') == self.focused:
-            self.notify("Adding task")
+            self.notify("Adding task", timeout=1.2)
             self.app.pop_screen()
-        pass
 
     def compose(self) -> ComposeResult:
         with VerticalGroup(id="dialog", classes="todo-popup"):
             yield Input(id="title", placeholder="Title", type="text")
-            yield Input(placeholder="Description", type="text")
+            yield TextArea()

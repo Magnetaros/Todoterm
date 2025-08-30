@@ -25,7 +25,7 @@ Screen {
 
 .todo-popup {
 	width: 60;
-	height: 8;
+	height: 12;
 	content-align: center middle;
 	background: $surface;
 	border: heavy #4a4e69;
@@ -45,7 +45,7 @@ Screen {
 }
 
 .date-text {
-	color: #c9ada7 30%;
+	color: #a9a3a0 80%;
 }
 
 .debug-bounds {
