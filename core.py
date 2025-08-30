@@ -1,4 +1,20 @@
 import sqlite3
+import datetime
+
+
+class Todo():
+
+    def __init__(self,
+                 id: int,
+                 title: str,
+                 description: None | str,
+                 status: str,
+                 created_at: None | datetime.datetime = None):
+        self.id = id
+        self.title = title
+        self.description = description
+        self.status = status
+        self.created_at = created_at if created_at is not None else datetime.datetime.now()
 
 
 class TodoDb():

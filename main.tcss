@@ -1,3 +1,8 @@
+
+TodoChange {
+	align: center middle;
+}
+
 Screen {
 	background: #22223b;
 }
@@ -6,8 +11,6 @@ Screen {
 	height: auto;
 	content-align: center middle;
 	background: #4a4e69 80%;
-	padding: 0 1;
-	margin: 1 1;
 }
 
 .task-container:focus {
@@ -18,12 +21,14 @@ Screen {
 	width: 100%;
 	padding: 0 1;
 	background: #22223b;
-	border: heavy green;
 }
 
 .todo-popup {
-	width: 70%;
-	height: 30%;
+	width: 60;
+	height: 8;
+	content-align: center middle;
+	background: $surface;
+	border: heavy #4a4e69;
 }
 
 .todo-title {
