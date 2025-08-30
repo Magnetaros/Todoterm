@@ -1,6 +1,11 @@
-
 TodoChange {
 	align: center middle;
+	background: $surface;
+}
+
+ModalScreen {
+	width: 60;
+	height: 12;
 }
 
 Screen {
@@ -23,10 +28,14 @@ Screen {
 	background: #22223b;
 }
 
-.todo-popup {
+#dialog {
 	width: 60;
 	height: 12;
+}
+
+.todo-popup {
 	content-align: center middle;
+	align: center middle;
 	background: $surface;
 	border: heavy #4a4e69;
 }

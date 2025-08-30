@@ -8,6 +8,7 @@ from textual.reactive import reactive
 from textual.screen import ModalScreen
 from textual.widgets import Label, Input, TextArea
 from textual.containers import HorizontalGroup, VerticalGroup
+from textual.validation import Function, Validator, ValidationResult
 
 
 class TodoTask(HorizontalGroup):
@@ -16,14 +17,6 @@ class TodoTask(HorizontalGroup):
     def __init__(self, task: Todo):
         super().__init__()
         self.task = task
-        pass
-
-    def on_focus(self) -> None:
-        self.notify("on focus")
-        pass
-
-    def on_selected(self) -> None:
-        self.notify("on selected")
         pass
 
     def compose(self) -> ComposeResult:
@@ -37,7 +30,7 @@ class TodoTask(HorizontalGroup):
 
         self.border_title = self.task.title
         self.border_subtitle = self.task.status
-        self.notify(f"on_compose_task {self.task.id}")
+        # self.notify(f"on_compose_task {self.task.id}")
 
         daysFromCreation = datetime.datetime.now() - self.task.created_at
 
@@ -67,10 +60,10 @@ class TodoTitle(VerticalGroup):
 
 
 # FIXME: show it as popup with transparent background, current -> replaces full screen
-class TodoChange(ModalScreen):
+class TodoChange(ModalScreen[Todo | None]):
 
     BINDINGS = [
-        ("escape", "app.pop_screen", "Exit window")
+        ("escape", "cancel", "Exit window")
     ]
 
     def on_mount(self) -> None:
@@ -79,11 +72,27 @@ class TodoChange(ModalScreen):
     def on_key(self, event: events.Key) -> None:
         self.notify(f"key pressed {event.key}", timeout=0.3)
         self.notify(f"Current focus {self.selections}", timeout=0.3)
-        if event.key == "enter" and self.query_one('#title') == self.focused:
+
+        input = self.query_one('#title')
+        if event.key == "enter" and input == self.focused and self.input_valid:
             self.notify("Adding task", timeout=1.2)
-            self.app.pop_screen()
+            description_input = self.query_one('#descr', TextArea)
+
+            # TODO: push to sql and recive Todo object
+            self.dismiss(Todo(-1, self.title_input,
+                         description_input.text, "pending"))
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)
+
+    def title_validation(self, value: str) -> bool:
+        self.input_valid = len(value) > 0
+        self.title_input = value
+        return self.input_valid
 
     def compose(self) -> ComposeResult:
         with VerticalGroup(id="dialog", classes="todo-popup"):
-            yield Input(id="title", placeholder="Title", type="text")
-            yield TextArea()
+            yield Input(id="title", placeholder="Title", type="text", validators=[
+                Function(self.title_validation, "Title can't be empty")
+            ])
+            yield TextArea(id="descr")
