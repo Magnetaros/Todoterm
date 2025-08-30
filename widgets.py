@@ -18,11 +18,6 @@ class TodoTask(HorizontalGroup):
         self.task = task
         pass
 
-    def on_mount(self) -> None:
-        self.styles.border = ("heavy", "#f2e9e4")
-        self.border_title = self.task.title
-        self.border_subtitle = self.task.status
-
     def on_focus(self) -> None:
         self.notify("on focus")
         pass
@@ -32,20 +27,33 @@ class TodoTask(HorizontalGroup):
         pass
 
     def compose(self) -> ComposeResult:
+        match self.task.status:
+            case "active":
+                self.styles.border = ("heavy", "yellow")
+            case "pending":
+                self.styles.border = ("heavy", "#9a8c98")
+            case "complite":
+                self.styles.border = ("heavy", "#a1c181")
+
+        self.border_title = self.task.title
+        self.border_subtitle = self.task.status
         self.notify(f"on_compose_task {self.task.id}")
+
+        daysFromCreation = datetime.datetime.now() - self.task.created_at
+
         with VerticalGroup():
             with HorizontalGroup():
                 yield Label(
-                    self.task.created_at.strftime(
-                        "%d.%m.%y") if self.task.created_at is not None else "216512",
+                    f"Created {daysFromCreation} day(s) ago" if daysFromCreation.days != 0 else "Today",
                     id="Date",
                     classes="date-text"
                 )
-            yield Label(
-                self.task.description if self.task.description is not None else "",
-                id="description",
-                classes="standtart-text"
-            )
+            if self.task.description is not None:
+                yield Label(
+                    self.task.description,
+                    id="description",
+                    classes="standtart-text"
+                )
 
 
 class TodoTitle(VerticalGroup):

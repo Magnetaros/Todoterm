@@ -1,4 +1,3 @@
-
 from textual.app import App, ComposeResult
 from textual.widgets import Footer, ListView, ListItem
 from textual.containers import VerticalGroup
@@ -7,6 +6,8 @@ from core import TodoDb, Todo
 from widgets import TodoTask, TodoTitle, TodoChange
 
 
+# TODO: no projects, just present day with unfinished tasks
+# + what you done today
 class Todo(App):
     CSS_PATH = "main.tcss"
 
@@ -33,22 +34,8 @@ class Todo(App):
         Todo(9, "Title Three", "Some test text", "complite")
     ]
 
-    # TODO: first check for existing projects, if non create new
-    # else show list of existing projects last 10 as centered list
     def on_mount(self) -> None:
         self.db = TodoDb()
-
-        for item in self.query(".task-list"):
-            match item.id:
-                case "active":
-                    item.styles.border = ("heavy", "yellow")
-                    item.border_title = "Active tasks"
-                case "pending":
-                    item.styles.border = ("heavy", "#9a8c98")
-                    item.border_title = "Pending tasks"
-                case "done":
-                    item.styles.border = ("heavy", "green")
-                    item.border_title = "Finished tasks"
 
         failed = self.db.init_db()
         if failed is not None:
@@ -62,17 +49,13 @@ class Todo(App):
         yield Footer()
         with VerticalGroup():
             yield TodoTitle(classes="todo-title")
-            # TODO: create another widget for this,
-            # I can't seem to find a way passing data through constructors
             with ListView(id="active", classes="task-list"):
                 yield ListItem(TodoTask(self.tasksAcitve[0]), classes="task-container")
                 yield ListItem(TodoTask(self.tasksAcitve[1]), classes="task-container")
                 yield ListItem(TodoTask(self.tasksAcitve[2]), classes="task-container")
-            with ListView(id="pending", classes="task-list"):
                 yield ListItem(TodoTask(self.tasksPending[0]), classes="task-container")
                 yield ListItem(TodoTask(self.tasksPending[1]), classes="task-container")
                 yield ListItem(TodoTask(self.tasksPending[2]), classes="task-container")
-            with ListView(id="done", classes="task-list"):
                 yield ListItem(TodoTask(self.tasksDone[0]), classes="task-container")
                 yield ListItem(TodoTask(self.tasksDone[1]), classes="task-container")
                 yield ListItem(TodoTask(self.tasksDone[2]), classes="task-container")
@@ -80,4 +63,3 @@ class Todo(App):
     def action_create_task(self) -> None:
         self.notify("creating task", title="Action", timeout=0.7)
         self.push_screen(TodoChange(classes="todo-popup"))
-        pass
