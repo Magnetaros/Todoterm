@@ -1,14 +1,14 @@
 import datetime
 
-from core import Todo
+from core import Todo, TodoDb, TASK_TITLE_LENGTH_LIMIT
 
 from textual import events
 from textual.app import ComposeResult
 from textual.reactive import reactive
 from textual.screen import ModalScreen
-from textual.widgets import Label, Input, TextArea
+from textual.widgets import Label, Input, TextArea, Static
 from textual.containers import HorizontalGroup, VerticalGroup
-from textual.validation import Function, Validator, ValidationResult
+from textual.validation import Function
 
 
 class TodoTask(HorizontalGroup):
@@ -30,7 +30,6 @@ class TodoTask(HorizontalGroup):
 
         self.border_title = self.task.title
         self.border_subtitle = self.task.status
-        # self.notify(f"on_compose_task {self.task.id}")
 
         daysFromCreation = datetime.datetime.now() - self.task.created_at
 
@@ -42,10 +41,12 @@ class TodoTask(HorizontalGroup):
                     classes="date-text"
                 )
             if self.task.description is not None:
-                yield Label(
+                yield Static(
                     self.task.description,
+                    expand=True,
+                    shrink=True,
                     id="description",
-                    classes="standtart-text"
+                    classes="standart-text"
                 )
 
 
@@ -54,12 +55,12 @@ class TodoTitle(VerticalGroup):
     def compose(self) -> ComposeResult:
         yield Label("Planned", classes="standart-text")
         yield Label(
-            datetime.datetime.now().strftime('%A %d, %Y'),
+            datetime.datetime.now().strftime('(%A) %B %d, %Y'),
             classes="standart-text"
         )
 
 
-# FIXME: show it as popup with transparent background, current -> replaces full screen
+# TODO: show it as popup with transparent background, current -> replaces full screen
 class TodoChange(ModalScreen[Todo | None]):
 
     BINDINGS = [
@@ -79,14 +80,21 @@ class TodoChange(ModalScreen[Todo | None]):
             description_input = self.query_one('#descr', TextArea)
 
             # TODO: push to sql and recive Todo object
-            self.dismiss(Todo(-1, self.title_input,
-                         description_input.text, "pending"))
+            db = TodoDb()
+            res = db.create_task(self.title_input, description_input.text)
+            if res is Exception:
+                self.notify(str(res), title="Db error", severity="error")
+            else:
+                self.notify(str(res), severity="warning")
+                self.dismiss(res)
+            del db
 
     def action_cancel(self) -> None:
         self.dismiss(None)
 
     def title_validation(self, value: str) -> bool:
-        self.input_valid = len(value) > 0
+        self.input_valid = len(value) > 0 and len(
+            value) <= TASK_TITLE_LENGTH_LIMIT
         self.title_input = value
         return self.input_valid
 

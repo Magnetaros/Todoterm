@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from textual.app import App, ComposeResult
-from textual.widgets import Footer, ListView, ListItem
+from textual.widgets import Footer, ListView, ListItem, Static
 from textual.reactive import reactive
 from textual.containers import VerticalGroup
 
@@ -19,40 +19,39 @@ class TodoTermApp(App):
         ("a", "create_task", "add task"),
     ]
 
-    db = None
-
-    tasks: reactive[list[Todo]] = reactive([
-        Todo(1, "Title One", None, "active"),
-        Todo(2, "Title Two", None, "active"),
-        Todo(3, "Title Three", "Some test text", "active"),
-        Todo(4, "Title One", None, "pending"),
-        Todo(5, "Title Two", None, "pending"),
-        Todo(6, "Title Three", "Some test text", "pending"),
-        Todo(7, "Title One", None, "complite",
-             created_at=datetime.now() - timedelta(days=4)),
-        Todo(8, "Title Two", None, "complite"),
-        Todo(9, "Title Three", "Some test text", "complite")
-    ], recompose=True)
+    tasks: reactive[list[Todo]] = reactive([], recompose=True)
 
     def on_mount(self) -> None:
-        self.db = TodoDb()
-
-        failed = self.db.init_db()
+        db = TodoDb()
+        failed = db.init_db()
         if failed is not None:
-            self.notify(failed, "Database error", severity="error")
+            self.notify(str(failed), title="Database error",
+                        severity="error")
+        else:
+            res = db.fetch_tasks()
+            if res is Exception:
+                self.notify(str(res), "DB Error", severity="error")
+            else:
+                for item in res:
+                    self.tasks.append(item)
+                self.notify(str(len(self.tasks)), title="Task count")
+                self.mutate_reactive(TodoTermApp.tasks)
+        del db
 
     def __del__(self):
-        print("todo destructor")
-        self.db.close_db()
+        print("todotermapp destructor")
 
     def compose(self) -> ComposeResult:
         self.notify(f"todo app compose, tasks count {len(self.tasks)}")
         yield Footer()
         with VerticalGroup():
             yield TodoTitle(classes="todo-title")
-            with ListView(id="active", classes="task-list"):
-                for item in self.tasks:
-                    yield ListItem(TodoTask(item), classes="task-container")
+            if len(self.tasks) > 0:
+                with ListView(id="active", classes="task-list"):
+                    for item in self.tasks:
+                        yield ListItem(TodoTask(item), classes="task-container")
+            else:
+                yield Static("No task found!", classes="no-todo-text")
 
     def action_create_task(self) -> None:
         def task_check(task: Todo | None):

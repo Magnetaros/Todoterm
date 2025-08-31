@@ -48,6 +48,20 @@ Screen {
 	color: #f2e9e4;
 }
 
+.no-todo-text {
+	color: #f2e9e4 70%;
+	align: center middle;
+	content-align: center middle;
+}
+
+.description-text {
+	color: #f2e9e4;
+	height: auto;
+	background: $surface;
+	padding: 0;
+	margin: 0;
+}
+
 .important-text {
 	color: #f2e9e4;
 	text-style: bold underline;
