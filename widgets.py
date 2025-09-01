@@ -83,10 +83,9 @@ class TodoChange(ModalScreen[Todo | None]):
             res = db.create_task(self.title_input, description_input.text)
             if res is Exception:
                 self.notify(str(res), title="Db error", severity="error")
-            else:
-                self.notify(str(res), severity="warning")
-                self.dismiss(res)
-            del db
+                pass
+
+            self.dismiss(res)
 
     def action_cancel(self) -> None:
         self.dismiss(None)

@@ -33,22 +33,22 @@ class TodoTermApp(App):
             pass
 
         self.tasks_stats = db.get_todo_status__variants()
-        self.notify(str(self.tasks_stats))
         res = db.fetch_tasks()
+
         if res is Exception:
             self.notify(str(res), "DB Error", severity="error")
             pass
 
         for item in res:
             self.tasks.append(item)
-        self.notify(str(len(self.tasks)), title="Task count")
+
         self.mutate_reactive(TodoTermApp.tasks)
 
+    # TODO: maybe remove?
     def on_list_view_selected(self, event: ListView.Selected) -> None:
-        self.notify(f"Selected {event.item.task.id}")
+        pass
 
     def on_list_view_highlighted(self, event: ListView.Highlighted) -> None:
-        self.notify(f"Highlited {event.item.task.id}")
         self.current = event.item
 
     def compose(self) -> ComposeResult:
@@ -61,8 +61,8 @@ class TodoTermApp(App):
                     for item in self.tasks:
                         yield TodoTask(item)
                     list_view.focus()
-            else:
-                yield Static("No task found!", classes="no-todo-text")
+                pass
+            yield Static("No task found!", classes="no-todo-text")
 
     def action_create_task(self) -> None:
         def task_check(task: Todo | None):
@@ -88,6 +88,7 @@ class TodoTermApp(App):
 
         self.notify(f"deleting {self.current.task.id}", severity="warning")
         self.tasks.remove(self.current.task)
+
         del self.current
         self.current = None
         self.mutate_reactive(TodoTermApp.tasks)
