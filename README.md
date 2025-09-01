@@ -1,10 +1,21 @@
 # TODOTERM
 
-TODO app inside terminal written in python
+TODO app inside terminal written in python3 v3.10.12
 
-### COLOR PALETTE
-    Soft Lavender: [ #22223b, #4a4e69, #9a8c98, #c9ada7, #f2e9e4]
-    URL: https://coolors.co/palette/22223b-4a4e69-9a8c98-c9ada7-f2e9e4
+Used resources:
+ - https://textual.textualize.io/ - textual documentation
+ - https://sqlite.org/ - offical sqlite docs
+ - https://www.sqlitetutorial.net/ - sqlite examples
+ - https://www.python.org/ - used for datetime and sqlite3 driver documentation
+ - https://sqliteonline.com/ - for sqlite query testing
+ - https://stackoverflow.com/ - for answers
 
-### UI REFERENCE
-    IMAGE URL: https://i.pinimg.com/1200x/ac/e6/d5/ace6d543d280aa8b0fabd158fb29c3f8.jpg
+## Used packages
+
+textual - https://github.com/textualize/textual/
+
+## Color palette
+
+Soft Lavender: [ #22223b, #4a4e69, #9a8c98, #c9ada7, #f2e9e4 ]
+
+URL: https://coolors.co/palette/22223b-4a4e69-9a8c98-c9ada7-f2e9e4
