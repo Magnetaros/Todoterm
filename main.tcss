@@ -12,14 +12,20 @@ Screen {
 	background: #22223b;
 }
 
-.task-container {
+.task-list > TodoTask {
 	height: auto;
 	content-align: center middle;
-	background: #4a4e69 80%;
+	background: #4a4e69 60%;
 }
 
-.task-container:focus {
-	background: 100%;
+.task-list > TodoTask.--highlighted {
+	height: auto;
+	content-align: center middle;
+	background: #4a4e69 100%;
+}
+
+TodoTask:hover {
+	background: #4a4e69 100%;
 }
 
 .task-list {
@@ -69,8 +75,4 @@ Screen {
 
 .date-text {
 	color: #a9a3a0 80%;
-}
-
-.debug-bounds {
-	border: heavy green;
 }

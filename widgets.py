@@ -6,18 +6,17 @@ from textual import events
 from textual.app import ComposeResult
 from textual.reactive import reactive
 from textual.screen import ModalScreen
-from textual.widgets import Label, Input, TextArea, Static
+from textual.widgets import Label, Input, TextArea, Static, ListItem
 from textual.containers import HorizontalGroup, VerticalGroup
 from textual.validation import Function
 
 
-class TodoTask(HorizontalGroup):
+class TodoTask(ListItem):
     task: reactive[Todo | None] = reactive(Todo(-1, "", None, ""))
 
-    def __init__(self, task: Todo):
-        super().__init__()
+    def __init__(self, task: Todo, classes: str | None = None):
+        super().__init__(classes=classes)
         self.task = task
-        pass
 
     def compose(self) -> ComposeResult:
         match self.task.status:
@@ -28,26 +27,27 @@ class TodoTask(HorizontalGroup):
             case "complite":
                 self.styles.border = ("heavy", "#a1c181")
 
-        self.border_title = self.task.title
+        self.border_title = f"{self.task.title}({self.task.id})"
         self.border_subtitle = self.task.status
 
         daysFromCreation = datetime.datetime.now() - self.task.created_at
 
-        with VerticalGroup():
-            with HorizontalGroup():
-                yield Label(
-                    f"Created {daysFromCreation.days} day(s) ago" if daysFromCreation.days != 0 else "Today",
-                    id="Date",
-                    classes="date-text"
-                )
-            if self.task.description is not None:
-                yield Static(
-                    self.task.description,
-                    expand=True,
-                    shrink=True,
-                    id="description",
-                    classes="standart-text"
-                )
+        with HorizontalGroup():
+            with VerticalGroup():
+                with HorizontalGroup():
+                    yield Label(
+                        f"Created {daysFromCreation.days} day(s) ago" if daysFromCreation.days != 0 else "Today",
+                        id="Date",
+                        classes="date-text"
+                    )
+                if self.task.description is not None:
+                    yield Static(
+                        self.task.description,
+                        expand=True,
+                        shrink=True,
+                        id="description",
+                        classes="standart-text"
+                    )
 
 
 class TodoTitle(VerticalGroup):
@@ -79,7 +79,6 @@ class TodoChange(ModalScreen[Todo | None]):
             self.notify("Adding task", timeout=1.2)
             description_input = self.query_one('#descr', TextArea)
 
-            # TODO: push to sql and recive Todo object
             db = TodoDb()
             res = db.create_task(self.title_input, description_input.text)
             if res is Exception:

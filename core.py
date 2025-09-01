@@ -22,13 +22,6 @@ class Todo():
 
 
 class TodoDb():
-
-    def __init__(self):
-        print("Db created!")
-
-    def __del__(self):
-        print("Db cloased")
-
     def create_task(self, title: str, description: None | str) -> object | sqlite3.OperationalError:
         try:
             with sqlite3.connect("todos.db") as conn:
@@ -36,20 +29,57 @@ class TodoDb():
                 cursor = conn.cursor()
                 cursor.execute(f'''
 INSERT INTO todos(title, description, status_id, created_at)
-VALUES ('{title}', "{description}", 1, '{date}');
-    ''')
+VALUES (?, ?, 1, ?);
+    ''', [title, description, date])
                 conn.commit()
                 return Todo(cursor.lastrowid, title, description, "active", date)
         except sqlite3.OperationalError as err:
             return err
 
-    def fetch_tasks(self) -> object | Exception:
+    def delete_task(self, task: Todo) -> Exception:
+        try:
+            with sqlite3.connect("todos.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute('DELETE FROM todos WHERE id = ?', (task.id,))
+                conn.commit()
+        except Exception as err:
+            return err
+
+    def get_todo_status__variants(self) -> list[str] | None:
+        try:
+            with sqlite3.connect("todos.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT status FROM todo_status')
+                res: list[str] = []
+                for item in cursor.fetchall():
+                    res.append(item[0])
+                return res
+        except Exception:
+            return None
+
+    def change_task(self, task: Todo) -> Exception:
+        try:
+            with sqlite3.connect("todos.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute('''
+UPDATE todos SET
+title = ?,
+description = ?,
+status = (SELECT id FROM todo_status WHERE status = ?)
+WHERE id = ?
+                ''', [task.title, task.description, task.status, task.id])
+                conn.commit()
+        except Exception as err:
+            return err
+
+    def fetch_tasks(self) -> list[Todo] | Exception:
         try:
             with sqlite3.connect("todos.db") as conn:
                 cursor = conn.cursor()
                 cursor.execute('''
 SELECT todos.id AS id, title, description, todo_status.status AS status, created_at FROM todos
 INNER JOIN todo_status ON todo_status.id = todos.status_id
+ORDER BY status
                 ''')
                 data = cursor.fetchall()
                 res: list[Todo] = []
@@ -65,10 +95,7 @@ INNER JOIN todo_status ON todo_status.id = todos.status_id
         except Exception as err:
             return err
 
-    def close_db(self):
-        self.conn.close()
-
-    def init_db(self) -> None | sqlite3.OperationalError:
+    def init_db(self) -> None | Exception:
         try:
             with sqlite3.connect("todos.db") as conn:
                 cursor = conn.cursor()
@@ -97,5 +124,5 @@ VALUES
                 cursor.fetchall()
                 cursor.close()
                 return None
-        except sqlite3.OperationalError as e:
+        except Exception as e:
             return e
