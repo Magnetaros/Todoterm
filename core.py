@@ -63,11 +63,11 @@ VALUES (?, ?, 1, ?);
                 cursor = conn.cursor()
                 cursor.execute('''
 UPDATE todos SET
-title = ?,
-description = ?,
-status = (SELECT id FROM todo_status WHERE status = ?)
-WHERE id = ?
-                ''', [task.title, task.description, task.status, task.id])
+title=?,
+description=?,
+status_id=(SELECT id FROM todo_status WHERE status = ?)
+WHERE id=?
+                ''', (task.title, task.description, task.status, task.id,))
                 conn.commit()
         except Exception as err:
             return err

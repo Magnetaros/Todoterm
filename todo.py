@@ -14,9 +14,9 @@ class TodoTermApp(App):
     CSS_PATH = "main.tcss"
 
     BINDINGS = [
-        ("c", "create_task", "add task"),
-        ("ctrl+c", "complite_task", "complite task"),
-        ("p", "switch_pending", "make pending"),
+        ("c", "create_task", "create task"),
+        ("C", "complite_task", "complite task"),
+        ("p", "switch_pending", "toggle pending"),
         ("d", "delete_task", "delete item"),
     ]
 
@@ -30,14 +30,14 @@ class TodoTermApp(App):
         if failed is Exception:
             self.notify(str(failed), title="Database error",
                         severity="error")
-            pass
+            return
 
         self.tasks_stats = db.get_todo_status__variants()
         res = db.fetch_tasks()
 
         if res is Exception:
             self.notify(str(res), "DB Error", severity="error")
-            pass
+            return
 
         for item in res:
             self.tasks.append(item)
@@ -59,15 +59,15 @@ class TodoTermApp(App):
             if len(self.tasks) > 0:
                 with ListView(id="active", classes="task-list") as list_view:
                     for item in self.tasks:
-                        yield TodoTask(item)
+                        yield TodoTask(task=item)
                     list_view.focus()
-                pass
+                return
             yield Static("No task found!", classes="no-todo-text")
 
     def action_create_task(self) -> None:
         def task_check(task: Todo | None):
             if task is None:
-                pass
+                return
 
             self.tasks.append(task)
             self.notify(f"Task Created, task count = {len(self.tasks)}")
@@ -79,12 +79,12 @@ class TodoTermApp(App):
     def action_delete_task(self) -> None:
         self.notify(f"trying to delete {self.current}:{self.current.task.id}")
         if self.current is None:
-            pass
+            return
 
         res = TodoDb().delete_task(self.current.task)
         if res is Exception:
             self.notify(str(res), severity="error")
-            pass
+            return
 
         self.notify(f"deleting {self.current.task.id}", severity="warning")
         self.tasks.remove(self.current.task)
@@ -95,29 +95,30 @@ class TodoTermApp(App):
 
     def action_complite_task(self) -> None:
         if self.current is None:
-            pass
+            return
 
-        self.current.task.status = "complite"
+        task = self.current.task
+        task.status = "complite"
 
-        res = TodoDb().change_task(self.current.task)
+        res = TodoDb().change_task(task)
         if res is Exception:
             self.notify(str(res), severity="error")
-            pass
+            return
 
-        self.mutate_reactive(TodoTermApp.tasks)
+        self.current.task = task
 
-    # TODO:
     def action_switch_pending(self) -> None:
         if self.current is None:
-            pass
+            return
 
         if self.current.task.status == "complite":
-            pass
+            return
 
-        self.current.task.status = "pending" if self.current.task.status == "active" else "active"
+        task = self.current.task
+        task.status = "pending" if task.status == "active" else "active"
         res = TodoDb().change_task(self.current.task)
         if res is Exception:
             self.notify(str(res), severity="error")
-            pass
+            return
 
-        self.mutate_reactive(TodoTermApp.tasks)
+        self.current.task = task

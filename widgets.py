@@ -12,14 +12,18 @@ from textual.validation import Function
 
 
 class TodoTask(ListItem):
-    task: reactive[Todo | None] = reactive(Todo(-1, "", None, ""))
+    task: reactive[Todo | None] = reactive(
+        None, always_update=True, recompose=True)
 
     def __init__(self, task: Todo, classes: str | None = None):
         super().__init__(classes=classes)
         self.task = task
 
-    def compose(self) -> ComposeResult:
-        match self.task.status:
+    def watch_task(self, old_task: Todo, new_task: Todo) -> None:
+        if new_task is None:
+            return
+
+        match new_task.status:
             case "active":
                 self.styles.border = ("heavy", "yellow")
             case "pending":
@@ -27,9 +31,10 @@ class TodoTask(ListItem):
             case "complite":
                 self.styles.border = ("heavy", "#a1c181")
 
-        self.border_title = f"{self.task.title}({self.task.id})"
-        self.border_subtitle = self.task.status
+        self.border_title = new_task.title
+        self.border_subtitle = new_task.status
 
+    def compose(self) -> ComposeResult:
         daysFromCreation = datetime.datetime.now() - self.task.created_at
 
         with HorizontalGroup():
@@ -71,9 +76,6 @@ class TodoChange(ModalScreen[Todo | None]):
         self.query_one('#dialog').border_title = "Todo"
 
     def on_key(self, event: events.Key) -> None:
-        self.notify(f"key pressed {event.key}", timeout=0.3)
-        self.notify(f"Current focus {self.selections}", timeout=0.3)
-
         input = self.query_one('#title')
         if event.key == "enter" and input == self.focused and self.input_valid:
             self.notify("Adding task", timeout=1.2)
@@ -83,7 +85,7 @@ class TodoChange(ModalScreen[Todo | None]):
             res = db.create_task(self.title_input, description_input.text)
             if res is Exception:
                 self.notify(str(res), title="Db error", severity="error")
-                pass
+                return
 
             self.dismiss(res)
 
