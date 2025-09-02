@@ -1,4 +1,5 @@
 import datetime
+from datetime import date
 
 from core import Todo, TodoDb, TASK_TITLE_LENGTH_LIMIT
 
@@ -35,7 +36,7 @@ class TodoTask(ListItem):
         self.border_subtitle = new_task.status
 
     def compose(self) -> ComposeResult:
-        daysFromCreation = datetime.datetime.now() - self.task.created_at
+        daysFromCreation = date.today() - self.task.created_at
 
         with HorizontalGroup():
             with VerticalGroup():

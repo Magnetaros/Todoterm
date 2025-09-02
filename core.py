@@ -1,5 +1,5 @@
 import sqlite3
-import datetime
+from datetime import date, datetime
 
 TASK_TITLE_LENGTH_LIMIT = 20
 
@@ -11,13 +11,13 @@ class Todo():
                  title: str,
                  description: None | str,
                  status: str,
-                 created_at: None | datetime.datetime = None,
-                 complited_date: None | datetime.datetime = None):
+                 created_at: None | date = None,
+                 complited_date: None | date = None):
         self.id = id
         self.title = title
         self.description = description
         self.status = status
-        self.created_at = created_at if created_at is not None else datetime.datetime.now()
+        self.created_at = created_at if created_at is not None else date.today()
         self.complited = complited_date
 
 
@@ -25,14 +25,14 @@ class TodoDb():
     def create_task(self, title: str, description: None | str) -> object | sqlite3.OperationalError:
         try:
             with sqlite3.connect("todos.db") as conn:
-                date = datetime.datetime.now()
+                task_date = date.today()
                 cursor = conn.cursor()
                 cursor.execute(f'''
 INSERT INTO todos(title, description, status_id, created_at)
 VALUES (?, ?, 1, ?);
-    ''', [title, description, date])
+    ''', [title, description, task_date])
                 conn.commit()
-                return Todo(cursor.lastrowid, title, description, "active", date)
+                return Todo(cursor.lastrowid, title, description, "active", task_date)
         except sqlite3.OperationalError as err:
             return err
 
@@ -90,7 +90,7 @@ ORDER BY status
                         title,
                         description,
                         status,
-                        datetime.datetime.strptime(created_at, '%Y-%m-%d %H:%M:%S.%f')))
+                        datetime.strptime(created_at, '%Y-%m-%d').date()))
                 return res
         except Exception as err:
             return err
