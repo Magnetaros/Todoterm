@@ -50,7 +50,7 @@ TodoTask:hover {
 	margin: 1 2;
 }
 
-.standart-text {
+.standard-text {
 	color: #f2e9e4;
 }
 

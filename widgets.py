@@ -58,6 +58,7 @@ class TodoTask(ListItem):
 
 class TodoTitle(VerticalGroup):
 
+    # test comment
     def compose(self) -> ComposeResult:
         yield Label("Planned", classes="standart-text")
         yield Label(
